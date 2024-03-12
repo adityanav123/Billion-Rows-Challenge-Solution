@@ -6,7 +6,7 @@ use std::{
     process::exit,
 };
 
-use clap::Parser;
+use clap::{Error, Parser};
 
 #[derive(Debug, PartialOrd, PartialEq)]
 struct CityStats {
@@ -36,17 +36,20 @@ struct Args {
 }
 
 fn main() {
+    let parsed_file = Args::parse();
+    
     // taking file name as cli argument
-    if Args::parse().filename.is_empty() {
+    if parsed_file.filename.is_empty() {
         exit(0);
     }
-    let path = Args::parse().filename;
+
+    let path = parsed_file.filename;
     let f = File::open(path).unwrap();
     let f = BufReader::new(f); // rust maintains a buffered io
 
     let mut store = BTreeMap::<String, CityStats>::new(); // auto sort
 
-    for line in f.lines().map_while(Result::ok).take(100000) {
+    for line in f.lines().map_while(Result::ok).take(1_000_000_000) {
         // string format : Hamburg;21
         if let Some((city, temp)) = line.split_once(';') {
             let temp = temp.parse::<f64>().unwrap();
